@@ -1,97 +1,97 @@
-# Web Scraping de Produtos
+# Product Web Scraping
 
-Este projeto visa realizar scraping de sites estáticos de vendas de produtos. O programa, após realizar o scraping e identificar os produtos, retorna uma tabela dinâmica com as informações extraídas.
+This project aims to perform scraping of static product sales websites. After scraping and identifying the products, the program returns a dynamic table with the extracted information.
 
-## Tecnologias Usadas
+## Technologies Used
 
 ### Frontend:
-- **React**: Biblioteca JavaScript para criar interfaces de usuário.
-- **Vite**: Ferramenta de build que permite um desenvolvimento rápido e otimizado.
-- **TypeScript (TSX)**: Superset do JavaScript que adiciona tipagem estática.
-- **CSS**: Folhas de estilo para a construção do layout.
-- **Socket.IO (cliente)**: Biblioteca para comunicação em tempo real via WebSockets.
-- **Toastify**: Biblioteca para exibir notificações de forma elegante.
-- **React Icons**: Conjunto de ícones para uso no React.
+- **React**: JavaScript library for building user interfaces.
+- **Vite**: A build tool that enables fast and optimized development.
+- **TypeScript (TSX)**: A superset of JavaScript that adds static typing.
+- **CSS**: Stylesheets for layout construction.
+- **Socket.IO (client)**: Library for real-time communication over WebSockets.
+- **Toastify**: Library to display elegant notifications.
+- **React Icons**: A set of icons for use with React.
 
 ### Backend:
-- **Socket.IO (servidor)**: Para comunicação em tempo real com o frontend via WebSockets.
-- **Axios**: Cliente HTTP para realizar requisições e buscar o HTML.
-- **Cheerio**: Biblioteca para manipulação e parsing do HTML no backend.
-- **Express**: Framework para construir a API.
-- **OpenAI API**: Utilizada para tratar e estruturar os dados extraídos.
-- **Dotenv**: Para carregar variáveis de ambiente a partir de um arquivo `.env`.
-- **Turndown**: Biblioteca para converter HTML em Markdown.
+- **Socket.IO (server)**: For real-time communication with the frontend via WebSockets.
+- **Axios**: HTTP client to make requests and fetch HTML.
+- **Cheerio**: Library for manipulating and parsing HTML on the backend.
+- **Express**: Framework for building the API.
+- **OpenAI API**: Used to process and structure the extracted data.
+- **Dotenv**: For loading environment variables from a `.env` file.
+- **Turndown**: Library to convert HTML to Markdown.
 
-## Fluxo de Execução do Projeto
+## Project Workflow
 
 1. **Frontend**:
-   - O usuário solicita o scraping de um site.
-   - O frontend envia a requisição para o backend via WebSocket (Socket.IO).
+   - The user requests the scraping of a website.
+   - The frontend sends the request to the backend via WebSocket (Socket.IO).
    
 2. **Backend**:
-   - O backend faz a requisição HTTP do HTML do site utilizando o `axios`.
-   - O HTML é limpo e convertido para Markdown usando a biblioteca `turndown`.
-   - O Markdown é processado em "chunks" (blocos de texto), cada um representando um produto, usando expressões regulares para identificar padrões de produtos de acordo com o seguinte padrão `[name](/products/slug)`.
-   - Cinco chunks são agrupados e enviados para a API da OpenAI, utilizando o modelo GPT-4o, para transformar esses dados em JSON estruturado.
-   - O JSON é retornado ao frontend com as informações dos produtos.
+   - The backend makes an HTTP request to fetch the site's HTML using `axios`.
+   - The HTML is cleaned and converted to Markdown using the `turndown` library.
+   - The Markdown is processed into "chunks" (blocks of text), each representing a product, using regular expressions to identify product patterns like `[name](/products/slug)`.
+   - Five chunks are grouped together and sent to the OpenAI API using the GPT-4o model to transform the data into structured JSON.
+   - The JSON is returned to the frontend with the product information.
 
-3. **Frontend (Continuação)**:
-   - O frontend exibe as informações em uma tabela dinâmica.
-   - O usuário pode buscar mais dados, o que irá disparar uma nova requisição para o backend, retornando os próximos produtos ou os que existirem, aproveitando o Markdown salvo já processado.
+3. **Frontend (Continued)**:
+   - The frontend displays the information in a dynamic table.
+   - The user can request more data, which triggers a new request to the backend, returning the next products or all available products, leveraging the saved and processed Markdown.
 
-## Como Executar
+## How to Run
 
-1. **Instalar Dependências**:
-   - No diretório `frontend` e `backend`, instale as dependências do projeto executando o comando:
+1. **Install Dependencies**:
+   - In both the `frontend` and `backend` directories, install the project dependencies by running:
      ```bash
      npm install
      ```
 
-2. **Rodar o Projeto**:
-   - Abra duas instâncias de terminal, uma para o frontend e outra para o backend.
-   - Em cada terminal, execute o seguinte comando para rodar o projeto:
+2. **Run the Project**:
+   - Open two terminal instances: one for the frontend and one for the backend.
+   - In each terminal, run the following command to start the project:
      ```bash
      npm run dev
      ```
 
-3. **Configurar a OpenAI API**:
-   - Crie uma conta no [OpenAI Playground](https://github.com/marketplace/models/azure-openai/gpt-4o/playground) e gere sua chave API. Você pode obter uma chave gratuita com 50 requisições diárias.
-   - No arquivo `.env` da pasta `backend`, insira sua chave da API:
+3. **Configure the OpenAI API**:
+   - Create an account on the [OpenAI Playground](https://github.com/marketplace/models/azure-openai/gpt-4o/playground) and generate your API key. You can get a free key with 50 requests per day.
+   - In the `.env` file within the `backend` folder, add your API key:
      ```bash
      OPENAI_API_KEY='Your_key'
      ```
 
-## Sites para Teste
+## Sites for Testing
 
-Você pode testar o scraping em qualquer um dos seguintes sites:
+You can test the scraping on any of the following websites:
 
 - [Boll & Branch](https://www.bollandbranch.com/collections/pillows-protectors/?direction=next&cursor=eyJsYXN0X2lkIjo3MzI0NTA2Njg1NDk5LCJsYXN0X3ZhbHVlIjoyMn0%3D)
 - [Glossier](https://www.glossier.com/)
 - [Carleton Equipment](https://carletonequipment.com/collections/used-equipment)
 - [The Sill](https://www.thesill.com/)
 
-## Pontos a Serem Melhorados
+## Areas for Improvement
 
-1. **Requisições Axios**:
-   - A requisição HTTP utilizando o `axios` pode não funcionar em todos os sites, especialmente aqueles que implementam segurança como captchas, validação de IP, login ou pop-ups.
-   - **Solução**: Explorar ferramentas pagas ou técnicas mais avançadas para contornar essas verificações.
+1. **Axios Requests**:
+   - The HTTP request using `axios` may not work on all websites, especially those with security measures such as captchas, IP validation, login requirements, or pop-ups.
+   - **Solution**: Explore paid tools or advanced techniques to bypass these checks.
 
-2. **Limpeza do HTML**:
-   - A técnica atual de limpeza do HTML não é eficiente para sites altamente dinâmicos.
-   - **Solução**: Explorar estratégias alternativas para limpar classes HTML ou usar ferramentas mais robustas.
+2. **HTML Cleaning**:
+   - The current method for cleaning the HTML is not efficient for highly dynamic websites.
+   - **Solution**: Explore alternative strategies to clean HTML classes or use more robust tools.
 
-3. **Identificação de Produtos**:
-   - A identificação de produtos e a formação de chunks não é totalmente eficiente para todos os sites.
-   - **Solução**: Realizar uma primeira passagem na API de IA, enviando o Markdown bruto e pedindo uma expressão regular (regex) específica para aquele site, a fim de identificar corretamente os produtos. Após isso, o Markdown pode ser processado de forma mais eficiente.
+3. **Product Identification**:
+   - The identification of products and chunk formation is not entirely effective for all websites.
+   - **Solution**: Perform a first pass through the AI API, sending the raw Markdown and requesting a regular expression (regex) specific to the site, to properly identify products. After that, the Markdown can be processed more efficiently.
 
-4. **Posição do Botão de Loading**:
-   - O botão de loading pode desaparecer quando a tabela aumenta de tamanho.
-   - **Solução**: Ajustar o layout para garantir que o botão de loading permaneça visível durante o processo de carregamento.
+4. **Loading Button Position**:
+   - The loading button may disappear when the table increases in size.
+   - **Solution**: Adjust the layout to ensure the loading button remains visible during the loading process.
 
-## Contribuições
+## Contributions
 
-Contribuições são bem-vindas! Caso tenha sugestões, melhorias ou correções, fique à vontade para abrir um *pull request*.
+Contributions are welcome! If you have suggestions, improvements, or fixes, feel free to open a *pull request*.
 
-## Licença
+## License
 
-Este projeto está licenciado sob a [Licença MIT](LICENSE).
+This project is licensed under the [MIT License](LICENSE).
