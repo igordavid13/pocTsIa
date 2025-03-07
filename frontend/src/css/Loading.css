@@ -1,0 +1,12 @@
+.spinner-icon {
+    animation: spinner infinite 1.2s;
+}
+
+@keyframes  spinner {
+    10% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

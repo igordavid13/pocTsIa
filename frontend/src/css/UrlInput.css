@@ -1,0 +1,17 @@
+.input-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+input {
+  padding: 14px;
+  width: 400px;
+  border: 2px solid #ffcc00;
+  border-radius: 5px;
+  background-color: #222;
+  color: white;
+  font-size: 1rem;
+  text-align: center;
+}
