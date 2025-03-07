@@ -31,7 +31,7 @@ Este projeto visa realizar scraping de sites estáticos de vendas de produtos. O
 2. **Backend**:
    - O backend faz a requisição HTTP do HTML do site utilizando o `axios`.
    - O HTML é limpo e convertido para Markdown usando a biblioteca `turndown`.
-   - O Markdown é processado em "chunks" (blocos de texto), cada um representando um produto, usando expressões regulares para identificar padrões de produtos (por exemplo: `[product](link)`).
+   - O Markdown é processado em "chunks" (blocos de texto), cada um representando um produto, usando expressões regulares para identificar padrões de produtos de acordo com o seguinte padrão `[name](/products/slug)`.
    - Cinco chunks são agrupados e enviados para a API da OpenAI, utilizando o modelo GPT-4o, para transformar esses dados em JSON estruturado.
    - O JSON é retornado ao frontend com as informações dos produtos.
 
