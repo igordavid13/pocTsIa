@@ -45,7 +45,7 @@ const App: React.FC = () => {
       }
     });
 
-    // Limpeza dos listeners ao desmontar o componente
+    // Cleanning listeners when disassemble the components
     return () => {
       socket.off("jsonData");
       socket.off("error");
