@@ -1,73 +1,84 @@
-import express from 'express';
-import http from 'http';
-import { Server, Socket } from 'socket.io';
-import dotenv from 'dotenv';
-import { scrape, getChunks } from './services/scraper';
-import { generateResponse } from './services/openaiService';
-
-dotenv.config();
+import express, { Request, Response } from 'express';
+import { scrape, getChunks,limitMarkdown, processProducts } from './services/scraper';
+import { iaInfoProducts, iaGetPage } from './services/openaiService';
+import cors from 'cors'; 
 
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: '*' } });
+const port = 5000;
 
-let chunksIndex : number = 0;
-let markdown : string[] = [];
+app.use(cors());
+app.use(express.json());
 
-io.on('connection', (socket: Socket) => {
-  console.log('Client Connected:', socket.id);
+
+app.post('/scrape', async (req: Request, res: Response) => {
+  const { url } = req.body;
   
-  let urlAtual: string | null = null;
-
-  // Event to process a new URL
-  socket.on('processUrl', async (url: string) => {
-    console.log(`Received URL: ${url}`);
-    urlAtual = url;
-    chunksIndex = 0;
-    markdown = await scrape(url);
-    const markdownContent = getChunks(markdown, chunksIndex);
-    if (markdownContent) {
-      const responseJson = await generateResponse(markdownContent);
-      if (responseJson) {
-        socket.emit('jsonData', responseJson);
-      }else{
-        socket.emit('error', 'gpt');}
-    }else{
-      socket.emit('error', 'URL');
+  try {
+    if(!url) {
+      throw new Error('URL is required');
     }
-     
-  });
+   
+    const markdown = await scrape(url);
+    if (markdown) {
+      // Scrape function returns an array os strings, in this function we join all the strings in one, redundance from the first version
+      const all_products_json:string = await iaGetPage(limitMarkdown(markdown.join('\n')));
+      console.log('all_products_json:', all_products_json);
+      
+      let parsedUrl = new URL(url);
+      const urlBase = (`${parsedUrl.protocol}//${parsedUrl.host}`).toString();
 
-  // Event to get more data(products) from the current URL
-  socket.on('getMoreData', async () => {
-    if (urlAtual) {
-      console.log(`Solicitado mais dados para: ${urlAtual}`);
-      chunksIndex+=5;
-      const markdownContent = await getChunks(markdown, chunksIndex);
-      if (markdownContent) {
-        var responseJson = await generateResponse(markdownContent);
-        if (responseJson) {
-          socket.emit('jsonData', responseJson);
-        }else{
-          socket.emit('error', 'gpt');
-        }
+      var {markdownString, shiftedProductsJson, productsUnscrapped} = await processProducts(all_products_json, urlBase);
+
+      markdownString += JSON.stringify(shiftedProductsJson);
+      console.log(markdownString);
+      const json_result = await iaInfoProducts(markdownString);
+
+      console.log('productsUnscrapped:', productsUnscrapped);
+
+      if (json_result) {
+        res.json({json_result, productsUnscrapped});
       } else {
-        socket.emit('error', 'noData');
+        res.status(400).json({ error: 'No data found for the given URL' });
       }
     }
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Client desconnected:', socket.id);
-  });
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
-server.listen(3000, () => {
-  console.log('Server running in port 3000');
+app.post('/scrape-more', async (req: Request, res: Response) => {
+  let { url, products } = req.body;
+  try {
+    if(!url) {
+      throw new Error('URL is required');
+      
+    }
+    let parsedUrl = new URL(url);
+    const urlBase = (`${parsedUrl.protocol}//${parsedUrl.host}`).toString();
+
+    var {markdownString, shiftedProductsJson, productsUnscrapped} = await processProducts(JSON.stringify(products), urlBase);
+
+    markdownString += JSON.stringify(shiftedProductsJson);
+    console.log(markdownString);
+    const json_result = await iaInfoProducts(markdownString);
+
+    console.log('products:', productsUnscrapped);
+
+    if (json_result) {
+      res.json({json_result, productsUnscrapped});
+    } else {
+      res.status(400).json({ error: 'No data found for the given URL' });
+    }
+  }
+  catch (error) {
+    res.status(500).json({ error: 'Error fetching more data' });
+  }
 });
 
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
+});
 
-// const url = 'https://www.bollandbranch.com/collections/pillows-protectors/?direction=next&cursor=eyJsYXN0X2lkIjo3MzI0NTA2Njg1NDk5LCJsYXN0X3ZhbHVlIjoyMn0%3D';
-// const url = 'https://www.glossier.com/';
 // const url = 'https://carletonequipment.com/collections/used-equipment';
 // const url = 'https://www.thesill.com/'
